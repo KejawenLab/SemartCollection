@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace KejawenLab\Semart\Collection;
 
-use ArrayAccess;
-use ArrayIterator;
-use IteratorAggregate;
-
 /**
  * @author Muhamad Surya Iksanudin <surya.iksanudin@gmail.com>
  */
-class Collection implements IteratorAggregate, ArrayAccess
+class Collection
 {
     /**
      * @var array
@@ -73,9 +69,9 @@ class Collection implements IteratorAggregate, ArrayAccess
      *
      * @return Collection
      */
-    public function remove($key)
+    public function remove($key): self
     {
-        if ($this->has($key)) {
+        if ($this->hasKey($key)) {
             unset($this->elements[$key]);
         }
 
@@ -83,13 +79,56 @@ class Collection implements IteratorAggregate, ArrayAccess
     }
 
     /**
-     * Check key of elements
+     * Flatten elements
+     *
+     * @return Collection
+     */
+    public function flatten(): self
+    {
+        $elements = [];
+        $this->each(function($value) use (&$elements) {
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+
+            $elements = array_merge($elements, $value);
+        });
+
+        return new static($elements);
+    }
+
+    /**
+     * Reset elements
+     *
+     * @return Collection
+     */
+    public function reset(): self
+    {
+        $this->elements = [];
+
+        return $this;
+    }
+
+    /**
+     * Check value is exist
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public function has($value): bool
+    {
+        return in_array($value, $this->elements) ? true : false;
+    }
+
+    /**
+     * Check key is exist
      *
      * @param mixed $key
      *
      * @return bool
      */
-    public function has($key): bool
+    public function hasKey($key): bool
     {
         return isset($this->elements[$key]) || array_key_exists($key, $this->elements);
     }
@@ -155,6 +194,62 @@ class Collection implements IteratorAggregate, ArrayAccess
     }
 
     /**
+     * Sort elements
+     *
+     * @param callable $callback
+     *
+     * @return Collection
+     */
+    public function sort(callable $callback): self
+    {
+        uasort($this->elements, $callback);
+
+        return $this;
+    }
+
+    /**
+     * Remove all values of elements
+     *
+     * @return Collection
+     */
+    public function keys(): self
+    {
+        return new static(array_keys($this->elements));
+    }
+
+    /**
+     * Merge array to collection
+     *
+     * @param array $elements
+     *
+     * @return Collection
+     */
+    public function merge(array $elements): self
+    {
+        return new static(array_merge($this->elements, $elements));
+    }
+
+    /**
+     * Flip array
+     *
+     * @return Collection
+     */
+    public function flip(): self
+    {
+        return new static(array_flip($this->elements));
+    }
+
+    /**
+     * Count elements
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return \count($this->elements);
+    }
+
+    /**
      * Filter elements by callback function
      *
      * @param callable $callback
@@ -169,30 +264,5 @@ class Collection implements IteratorAggregate, ArrayAccess
     public function toArray(): array
     {
         return $this->elements;
-    }
-
-    public function getIterator(): \Traversable
-    {
-        return new ArrayIterator($this->elements);
-    }
-
-    public function offsetExists($offset): bool
-    {
-        return $this->has($offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->get($offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        $this->add($value, $offset);
-    }
-
-    public function offsetUnset($offset)
-    {
-        $this->remove($offset);
     }
 }
