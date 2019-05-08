@@ -1,0 +1,14 @@
+{
+    "name": "kejawenlab/semart-collection",
+    "description": "Kejawenlab Collection",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "KejawenLab\\Semart\\Collection\\": "src/"
+        }
+    }
+}
