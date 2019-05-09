@@ -187,6 +187,18 @@ class Collection
     }
 
     /**
+     * Implode elements
+     *
+     * @param string|null $glue
+     *
+     * @return string
+     */
+    public function implode(string  $glue = null): string
+    {
+        return implode($glue, $this->elements);
+    }
+
+    /**
      * Sort elements
      *
      * @param callable $callback
