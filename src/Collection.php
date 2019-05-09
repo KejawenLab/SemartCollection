@@ -81,20 +81,13 @@ class Collection
     /**
      * Flatten elements
      *
+     * @param int $depth
+     *
      * @return Collection
      */
-    public function flatten(): self
+    public function flatten(int $depth = 1): self
     {
-        $elements = [];
-        $this->each(function($value) use (&$elements) {
-            if (!is_array($value)) {
-                $value = [$value];
-            }
-
-            $elements = array_merge($elements, $value);
-        });
-
-        return new static($elements);
+        return new static($this->doFlatten($this->elements, $depth));
     }
 
     /**
@@ -261,8 +254,29 @@ class Collection
         return new static(array_filter($this->elements, $callback));
     }
 
+    /**
+     * Get elements as array
+     *
+     * @return array
+     */
     public function toArray(): array
     {
         return $this->elements;
+    }
+
+    private function doFlatten(array $elements, int $depth = 1): array
+    {
+        $result = [];
+        foreach ($elements as $element) {
+            if (!is_array($element)) {
+                $result[] = $element;
+            } elseif ($depth === 1) {
+                $result = array_merge($result, array_values($element));
+            } else {
+                $result = array_merge($result, $this->doFlatten($element, $depth - 1));
+            }
+        }
+
+        return $result;
     }
 }
