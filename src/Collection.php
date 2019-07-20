@@ -55,11 +55,19 @@ class Collection
      *
      * @param mixed $key
      *
-     * @return mixed|null
+     * @return int|string|null|Collection
      */
     public function get($key)
     {
-        return $this->elements[$key] ?? null;
+        if (!array_key_exists($key, $this->elements)) {
+            return null;
+        }
+
+        if (!is_array($this->elements[$key])) {
+            return $this->elements[$key];
+        }
+
+        return self::collect($this->elements[$key]);
     }
 
     /**
